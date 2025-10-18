@@ -1,0 +1,24 @@
+<%- include('../partials/header') %>
+
+<!-- HEADER AVEC PHOTO ET INFO -->
+<header>
+    <div class="header-content">
+        <img src="/img/moi.PNG" alt="Photo de profil" class="profile-photo">
+        <div class="header-info">
+            <h1><%= portfolio.bio.nom %></h1>
+            <p class="titre"><%= portfolio.bio.titre.split('communication')[0] %><span class="highlight">communication</span></p>
+        </div>
+    </div>
+</header>
+
+<!-- CONTAINER PRINCIPAL -->
+<div class="container">
+    <%- include('../partials/sections/apropos') %>
+    <%- include('../partials/sections/formations') %>
+    <%- include('../partials/sections/experiences') %>
+    <%- include('../partials/sections/projets') %>
+    <%- include('../partials/sections/competences') %>
+    <%- include('../partials/sections/interets') %>
+</div>
+
+<%- include('../partials/footer') %>

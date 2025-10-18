@@ -1,0 +1,419 @@
+<%- include('../partials/header') %>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <!-- HEADER ADMIN -->
+    <div style="background: linear-gradient(135deg, #2d3142 0%, #1a1d2e 100%); padding: 2rem; color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+            <div>
+                <h1 style="font-family: var(--font-titre); margin: 0; font-size: 2.2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🛠️ Administration</h1>
+                <p style="margin: 0.5rem 0 0 0; font-size: 1.05rem; color: rgba(255,255,255,0.95);">Gestion des projets</p>
+            </div>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="/" style="padding: 1rem 1.8rem; background: white; color: #2d3142; text-decoration: none; border-radius: 25px; font-weight: 700; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 0.5rem;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'">
+                    🏠 Retour au site
+                </a>
+                <button onclick="logout()" style="padding: 1rem 1.8rem; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; border-radius: 25px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); display: flex; align-items: center; gap: 0.5rem;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(239, 68, 68, 0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(239, 68, 68, 0.4)'">
+                    🚪 Déconnexion
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTAINER ADMIN -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 2rem;">
+        
+        <!-- BOUTON AJOUTER -->
+        <div style="margin-bottom: 2rem; text-align: right;">
+            <button onclick="showAddModal()" style="padding: 1.2rem 2.5rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 25px; font-size: 1.15rem; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); text-shadow: 0 1px 2px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(16, 185, 129, 0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.4)'">
+                ➕ Ajouter un projet
+            </button>
+        </div>
+
+        <!-- LISTE DES PROJETS -->
+        <div id="projetsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 2rem;">
+            <% projets.forEach((projet, index) => { %>
+                <div class="admin-projet-card" data-index="<%= index %>" style="background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-left: 5px solid var(--vert-accent);">
+                    <% if (projet.image) { %>
+                        <img src="<%= projet.image %>" alt="<%= projet.titre %>" style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px; margin-bottom: 1rem;">
+                    <% } %>
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <span style="background: var(--vert-accent); color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem;"><%= projet.annee %></span>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button onclick="editProjet(<%= index %>)" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 15px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease;">
+                                ✏️ Modifier
+                            </button>
+                            <button onclick="deleteProjet(<%= index %>)" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 15px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease;">
+                                🗑️ Supprimer
+                            </button>
+                        </div>
+                    </div>
+                    <h3 style="font-family: var(--font-titre); color: var(--noir); font-size: 1.4rem; margin-bottom: 1rem;"><%= projet.titre %></h3>
+                    <p style="color: var(--gris-fonce); margin-bottom: 1rem; line-height: 1.6;"><%= projet.description %></p>
+                    <p style="color: var(--gris); font-size: 0.9rem; font-style: italic;"><strong>Compétences:</strong> <%= projet.competences %></p>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+
+    <!-- MODAL AJOUT/ÉDITION -->
+    <div id="projetModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; overflow-y: auto; padding: 2rem;">
+        <div style="background: white; padding: 3rem; border-radius: 20px; max-width: 700px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <h2 id="modalTitle" style="font-family: var(--font-titre); margin-bottom: 2rem; color: var(--vert-accent); font-size: 2rem;">Ajouter un projet</h2>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--gris-fonce);">Titre du projet *</label>
+                <input type="text" id="projetTitre" placeholder="Ex: Shirt" style="width: 100%; padding: 1rem; border: 2px solid var(--vert-clair); border-radius: 10px; font-family: var(--font-principale); font-size: 1rem; transition: all 0.3s ease;">
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--gris-fonce);">Année *</label>
+                <input type="text" id="projetAnnee" placeholder="Ex: 2024" style="width: 100%; padding: 1rem; border: 2px solid var(--vert-clair); border-radius: 10px; font-family: var(--font-principale); font-size: 1rem; transition: all 0.3s ease;">
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--gris-fonce);">Description *</label>
+                <textarea id="projetDescription" rows="5" placeholder="Décrivez votre projet..." style="width: 100%; padding: 1rem; border: 2px solid var(--vert-clair); border-radius: 10px; font-family: var(--font-principale); font-size: 1rem; resize: vertical; transition: all 0.3s ease;"></textarea>
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--gris-fonce);">Compétences *</label>
+                <textarea id="projetCompetences" rows="3" placeholder="Ex: Branding - Design - Communication..." style="width: 100%; padding: 1rem; border: 2px solid var(--vert-clair); border-radius: 10px; font-family: var(--font-principale); font-size: 1rem; resize: vertical; transition: all 0.3s ease;"></textarea>
+            </div>
+            
+            <div style="margin-bottom: 2rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--gris-fonce);">Image du projet</label>
+                <input type="file" id="projetImage" accept="image/*" style="width: 100%; padding: 1rem; border: 2px solid var(--vert-clair); border-radius: 10px; font-family: var(--font-principale); font-size: 1rem; transition: all 0.3s ease;">
+                <div id="imagePreview" style="margin-top: 1rem; display: none;">
+                    <img id="previewImg" src="" alt="Aperçu" style="max-width: 100%; max-height: 200px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                </div>
+                <input type="hidden" id="projetImagePath" value="">
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <button onclick="saveProjet()" style="flex: 1; padding: 1.2rem; background: var(--vert-accent); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 1.1rem; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);">
+                    💾 Enregistrer
+                </button>
+                <button onclick="closeModal()" style="flex: 1; padding: 1.2rem; background: var(--gris); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 1.1rem; transition: all 0.3s ease;">
+                    ❌ Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CROP IMAGE -->
+    <div id="cropModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; overflow-y: auto; padding: 2rem;">
+        <div style="background: white; padding: 2rem; border-radius: 20px; max-width: 800px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+            <h2 style="font-family: var(--font-titre); margin-bottom: 1.5rem; color: var(--vert-accent); font-size: 1.8rem;">✂️ Recadrer l'image</h2>
+            
+            <div style="max-height: 500px; overflow: hidden; margin-bottom: 1.5rem;">
+                <img id="cropImage" src="" style="max-width: 100%; display: block;">
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <button onclick="cropperRotateLeft()" style="padding: 0.8rem 1.5rem; background: var(--vert-clair); color: var(--vert-fonce); border: none; border-radius: 15px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                    ↺ Rotation gauche
+                </button>
+                <button onclick="cropperRotateRight()" style="padding: 0.8rem 1.5rem; background: var(--vert-clair); color: var(--vert-fonce); border: none; border-radius: 15px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                    ↻ Rotation droite
+                </button>
+                <button onclick="cropperFlipH()" style="padding: 0.8rem 1.5rem; background: var(--vert-clair); color: var(--vert-fonce); border: none; border-radius: 15px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                    ⇄ Miroir H
+                </button>
+                <button onclick="cropperFlipV()" style="padding: 0.8rem 1.5rem; background: var(--vert-clair); color: var(--vert-fonce); border: none; border-radius: 15px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                    ⇅ Miroir V
+                </button>
+                <button onclick="cropperReset()" style="padding: 0.8rem 1.5rem; background: #ef4444; color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                    🔄 Réinitialiser
+                </button>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <button onclick="applyCrop()" style="flex: 1; padding: 1.2rem; background: var(--vert-accent); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 1.1rem; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);">
+                    ✅ Valider
+                </button>
+                <button onclick="closeCropModal()" style="flex: 1; padding: 1.2rem; background: var(--gris); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 1.1rem; transition: all 0.3s ease;">
+                    ❌ Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Vérifier l'authentification
+        console.log('Vérification de l\'authentification...');
+        console.log('adminAuth:', sessionStorage.getItem('adminAuth'));
+        
+        if (sessionStorage.getItem('adminAuth') !== 'true') {
+            console.log('❌ Non authentifié, redirection vers /catalogue');
+            alert('⚠️ Vous devez vous connecter pour accéder à cette page');
+            window.location.href = '/catalogue';
+        } else {
+            console.log('✅ Authentifié, accès autorisé');
+        }
+
+        let editingIndex = null;
+        let projets = <%- JSON.stringify(projets) %>;
+
+        function logout() {
+            sessionStorage.removeItem('adminAuth');
+            window.location.href = '/';
+        }
+
+        function showAddModal() {
+            editingIndex = null;
+            document.getElementById('modalTitle').textContent = 'Ajouter un projet';
+            document.getElementById('projetTitre').value = '';
+            document.getElementById('projetAnnee').value = '';
+            document.getElementById('projetDescription').value = '';
+            document.getElementById('projetCompetences').value = '';
+            document.getElementById('projetImage').value = '';
+            document.getElementById('projetImagePath').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('projetModal').style.display = 'flex';
+        }
+
+        function editProjet(index) {
+            editingIndex = index;
+            const projet = projets[index];
+            document.getElementById('modalTitle').textContent = 'Modifier le projet';
+            document.getElementById('projetTitre').value = projet.titre;
+            document.getElementById('projetAnnee').value = projet.annee;
+            document.getElementById('projetDescription').value = projet.description;
+            document.getElementById('projetCompetences').value = projet.competences;
+            document.getElementById('projetImage').value = '';
+            document.getElementById('projetImagePath').value = projet.image || '';
+            
+            // Afficher l'image existante si elle existe
+            if (projet.image) {
+                document.getElementById('previewImg').src = projet.image;
+                document.getElementById('imagePreview').style.display = 'block';
+            } else {
+                document.getElementById('imagePreview').style.display = 'none';
+            }
+            
+            document.getElementById('projetModal').style.display = 'flex';
+        }
+        
+        // Variables pour le cropper
+        let cropper = null;
+        let currentImageFile = null;
+        let croppedBlob = null;
+        
+        // Prévisualisation et ouverture du crop
+        document.getElementById('projetImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                currentImageFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Afficher la modal de crop
+                    document.getElementById('cropImage').src = e.target.result;
+                    document.getElementById('cropModal').style.display = 'flex';
+                    
+                    // Initialiser Cropper.js
+                    setTimeout(() => {
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+                        cropper = new Cropper(document.getElementById('cropImage'), {
+                            aspectRatio: 16 / 9,
+                            viewMode: 1,
+                            autoCropArea: 1,
+                            responsive: true,
+                            background: false,
+                            guides: true,
+                            center: true,
+                            highlight: true,
+                            cropBoxResizable: true,
+                            cropBoxMovable: true,
+                            toggleDragModeOnDblclick: false,
+                        });
+                    }, 100);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Fonctions de manipulation du cropper
+        function cropperRotateLeft() {
+            if (cropper) cropper.rotate(-90);
+        }
+        
+        function cropperRotateRight() {
+            if (cropper) cropper.rotate(90);
+        }
+        
+        function cropperFlipH() {
+            if (cropper) {
+                const data = cropper.getData();
+                cropper.scaleX(data.scaleX === -1 ? 1 : -1);
+            }
+        }
+        
+        function cropperFlipV() {
+            if (cropper) {
+                const data = cropper.getData();
+                cropper.scaleY(data.scaleY === -1 ? 1 : -1);
+            }
+        }
+        
+        function cropperReset() {
+            if (cropper) cropper.reset();
+        }
+        
+        function applyCrop() {
+            if (cropper) {
+                cropper.getCroppedCanvas({
+                    width: 1200,
+                    height: 675,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                }).toBlob((blob) => {
+                    croppedBlob = blob;
+                    
+                    // Afficher la prévisualisation
+                    const url = URL.createObjectURL(blob);
+                    document.getElementById('previewImg').src = url;
+                    document.getElementById('imagePreview').style.display = 'block';
+                    
+                    closeCropModal();
+                }, 'image/jpeg', 0.9);
+            }
+        }
+        
+        function closeCropModal() {
+            document.getElementById('cropModal').style.display = 'none';
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('projetModal').style.display = 'none';
+            editingIndex = null;
+        }
+
+        async function saveProjet() {
+            const titre = document.getElementById('projetTitre').value.trim();
+            const annee = document.getElementById('projetAnnee').value.trim();
+            const description = document.getElementById('projetDescription').value.trim();
+            const competences = document.getElementById('projetCompetences').value.trim();
+            const imageFile = document.getElementById('projetImage').files[0];
+            let imagePath = document.getElementById('projetImagePath').value;
+
+            if (!titre || !annee || !description || !competences) {
+                alert('⚠️ Veuillez remplir tous les champs obligatoires !');
+                return;
+            }
+
+            try {
+                // Upload de l'image si une nouvelle image est sélectionnée (utiliser l'image croppée)
+                if (croppedBlob) {
+                    const formData = new FormData();
+                    formData.append('image', croppedBlob, 'cropped-image.jpg');
+                    
+                    const uploadResponse = await fetch('/api/upload-image', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (uploadResponse.ok) {
+                        const uploadData = await uploadResponse.json();
+                        imagePath = uploadData.imagePath;
+                        croppedBlob = null; // Réinitialiser
+                    } else {
+                        alert('❌ Erreur lors de l\'upload de l\'image');
+                        return;
+                    }
+                }
+
+                const projetData = { titre, annee, description, competences, image: imagePath };
+
+                if (editingIndex !== null) {
+                    // Modification
+                    const projetId = projets[editingIndex].id;
+                    const response = await fetch(`/api/projets/${projetId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(projetData)
+                    });
+
+                    if (response.ok) {
+                        alert('✅ Projet modifié avec succès !');
+                        closeModal();
+                        location.reload();
+                    } else {
+                        alert('❌ Erreur lors de la modification');
+                    }
+                } else {
+                    // Ajout
+                    const response = await fetch('/api/projets', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(projetData)
+                    });
+
+                    if (response.ok) {
+                        alert('✅ Projet ajouté avec succès !');
+                        closeModal();
+                        location.reload();
+                    } else {
+                        alert('❌ Erreur lors de l\'ajout');
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('❌ Erreur de connexion au serveur');
+            }
+        }
+
+        async function deleteProjet(index) {
+            if (confirm('⚠️ Êtes-vous sûr de vouloir supprimer ce projet ?')) {
+                const projetId = projets[index].id;
+                
+                try {
+                    const response = await fetch(`/api/projets/${projetId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('✅ Projet supprimé avec succès !');
+                        location.reload();
+                    } else {
+                        alert('❌ Erreur lors de la suppression');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur de connexion au serveur');
+                }
+            }
+        }
+
+        // Animations au hover
+        document.querySelectorAll('.admin-projet-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+                this.style.boxShadow = '0 12px 24px rgba(76, 175, 80, 0.2)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+            });
+        });
+
+        // Focus sur les inputs
+        document.querySelectorAll('input, textarea').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = 'var(--vert-accent)';
+                this.style.boxShadow = '0 0 0 3px rgba(76, 175, 80, 0.1)';
+            });
+            input.addEventListener('blur', function() {
+                this.style.borderColor = 'var(--vert-clair)';
+                this.style.boxShadow = 'none';
+            });
+        });
+    </script>
+
+<%- include('../partials/footer') %>

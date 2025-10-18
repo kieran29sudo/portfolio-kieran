@@ -1,0 +1,74 @@
+<!-- COMPÉTENCES -->
+<section id="competences">
+    <h2>Compétences</h2>
+    
+    <!-- SOFT SKILLS -->
+    <h3 style="font-family: var(--font-titre); color: var(--vert-fonce); margin-bottom: 1.5rem; margin-top: 2rem;">Soft-skills</h3>
+    <div class="soft-skills-grid">
+        <% portfolio.softSkills.forEach(skill => { %>
+            <div class="skill-card">
+                <div class="icon"><%= skill.icon %></div>
+                <h3><%= skill.nom %></h3>
+            </div>
+        <% }) %>
+    </div>
+
+    <!-- HARD SKILLS -->
+    <h3 style="font-family: var(--font-titre); color: var(--vert-fonce); margin-bottom: 1.5rem; margin-top: 3rem;">Hard-skills</h3>
+    <div class="competences-grid">
+        <!-- Branding -->
+        <div class="competence-card">
+            <h3>Branding</h3>
+            <ul>
+                <% portfolio.hardSkills.branding.forEach(item => { %>
+                    <li><%= item %></li>
+                <% }) %>
+            </ul>
+        </div>
+
+        <!-- Audiovisuel -->
+        <div class="competence-card">
+            <h3>Audiovisuel</h3>
+            <ul>
+                <% portfolio.hardSkills.audiovisuel.forEach(item => { %>
+                    <li><%= item %></li>
+                <% }) %>
+            </ul>
+        </div>
+
+        <!-- UX Design -->
+        <div class="competence-card">
+            <h3>UX Design</h3>
+            <ul>
+                <% portfolio.hardSkills.uxDesign.forEach(item => { %>
+                    <li><%= item %></li>
+                <% }) %>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Hard Skills Icons -->
+    <div class="hardskills-icons">
+        <div class="skill-icon">
+            <img src="/img/competences/html.png" alt="HTML">
+            <span>HTML</span>
+        </div>
+        <div class="skill-icon">
+            <img src="/img/competences/css.png" alt="CSS">
+            <span>CSS</span>
+        </div>
+        <div class="skill-icon">
+            <img src="/img/competences/js.png" alt="JavaScript">
+            <span>JavaScript</span>
+        </div>
+        <div class="skill-icon">
+            <img src="/img/competences/figma.png" alt="Figma">
+            <span>Figma</span>
+        </div>
+        <div class="skill-icon">
+            <img src="/img/competences/affinity.png" alt="Affinity">
+            <span>Affinity</span>
+        </div>
+    </div>
+
+</section>

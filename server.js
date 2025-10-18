@@ -1,0 +1,240 @@
+import express from "express";
+import { db, db_functions } from './src/config/database.js';
+import upload from './src/config/multer.js';
+
+const app = express();
+
+// Initialiser la base de données au démarrage
+console.log('🔄 Initialisation de la base de données...');
+
+// Middleware pour parser les données
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Servir tous les fichiers statiques depuis le dossier public
+app.use(express.static('public'));
+
+// EJS Template Engine
+app.set('view engine', 'ejs');
+app.set('views', './views/pages');
+
+// Route principale - Portfolio
+app.get("/", function (req, res) {
+  // Récupérer les projets depuis la base de données
+  db_functions.getAllProjets((err, projetsDB) => {
+    const portfolio = {
+    bio: {
+      nom: "Le Troadec Kiéran",
+      titre: "Recherche d'alternance en communication",
+      description: "Je suis Kiéran Le Troadec. J'ai 19 ans, petit mais grand passionné de voitures et de motos. Consciencieux dans l'écologie et intéressé par l'audiovisuel depuis toujours, je mélange passions et engagement afin d'évoluer au quotidien. Maintenant étudiant en BUT MMI à Lannion, je suis formé dans le multimédia, ce qui me permet de développer mes capacités en montage vidéo et production visuelle. Donc, pour une alternance suscitant mes capacités et engageant mes passions, j'espère pouvoir vous aider.",
+      contact: {
+        adresse: "5B place du marchallach\n10 rue de Guipry",
+        telephone: "07 69 84 75 60",
+        permis: "B / AM véhiculé"
+      }
+    },
+    softSkills: [
+      { nom: "Curiosité", icon: "🔍" },
+      { nom: "Autonomie", icon: "👤" },
+      { nom: "Adaptabilité", icon: "⚙️" },
+      { nom: "Créativité", icon: "✏️" },
+      { nom: "Esprit d'équipe", icon: "🤝" }
+    ],
+    hardSkills: {
+      branding: [
+        "Rapport d'audit",
+        "Stratégie de positionnement",
+        "Identité visuelle"
+      ],
+      audiovisuel: [
+        "Captation photo et vidéo",
+        "Création numérique (suites Affinity et Adobe)",
+        "Montage (Da Vinci Resolve)"
+      ],
+      uxDesign: [
+        "Analyse des besoins/objectifs",
+        "Wireframe/mockup",
+        "Tests utilisateur"
+      ],
+      langues: [
+        { langue: "Anglais", niveau: "Niveau B1: compréhension et expression", detail: "Voyage en Irlande" },
+        { langue: "Espagnol", niveau: "Niveau A2", detail: "Séjour en Espagne" }
+      ],
+      hardSkillsIcons: [
+        { nom: "HTML", logo: "/img/competences/html.png" },
+        { nom: "CSS", logo: "/img/competences/css.png" },
+        { nom: "JavaScript", logo: "/img/competences/js.png" },
+        { nom: "Figma", logo: "/img/competences/figma.png" },
+        { nom: "Affinity", logo: "/img/competences/affinity.png" }
+      ]
+    },
+    formations: [
+      {
+        annees: "2024-2027",
+        titre: "Bachelor Universitaire de Technologie MMI",
+        details: "métiers du multimédia et de l'internet",
+        lieu: "IUT, Lannion (22)",
+        specialites: "Marketing et communication, production audiovisuelle et graphique, développement web"
+      },
+      {
+        annees: "2021-2024",
+        titre: "Baccalauréat STI2D",
+        details: "sciences et technologies de l'industrie et du développement durable",
+        lieu: "Lycée Vauban, Brest (29), Mention Bien",
+        specialites: "Spécialité ITEC (Innovation Technologique et Éco-conception)"
+      }
+    ],
+    experiences: [
+      {
+        titre: "Équipier polyvalent - McDonald's Lannion",
+        periode: "Depuis 2024",
+        image: "/img/travail/mcdo.png"
+      },
+      {
+        titre: "Architecte d'intérieur - Edifix Brest",
+        periode: "2021",
+        image: "/img/travail/edifix.jpg"
+      },
+      {
+        titre: "Agent de bibliothèque - Médiathèque l'Awena Guipavas",
+        periode: "2021",
+        image: "/img/travail/awena.jpg"
+      }
+    ],
+    projets: projetsDB || [],
+    interets: [
+      {
+        titre: "Musculation",
+        description: "Engagé depuis 2 ans, ce sport me permet de 'méditer' sur moi-même."
+      },
+      {
+        titre: "Vieilles mécaniques",
+        description: "Rénovation complète d'une mobylette (103 Vogue de 1988)."
+      }
+    ]
+  };
+
+    res.render("index", { portfolio, page: 'home' });
+  });
+});
+
+// Page catalogue
+app.get("/catalogue", function (req, res) {
+  db_functions.getAllProjets((err, projets) => {
+    if (err) {
+      console.error('❌ Erreur lors de la récupération des projets:', err);
+      res.render("catalogue", { projets: [], page: 'catalogue' });
+    } else {
+      res.render("catalogue", { projets, page: 'catalogue' });
+    }
+  });
+});
+
+// Page projet individuel
+app.get("/projet/:id", function (req, res) {
+  const { id } = req.params;
+  
+  // Récupérer le projet spécifique
+  db_functions.getProjetById(id, (err, projet) => {
+    if (err || !projet) {
+      console.error('❌ Erreur lors de la récupération du projet:', err);
+      return res.status(404).render('404');
+    }
+    
+    // Récupérer tous les projets pour les projets similaires
+    db_functions.getAllProjets((err, tousLesProjets) => {
+      // Filtrer pour exclure le projet actuel et limiter à 3
+      const projetsSimilaires = (tousLesProjets || [])
+        .filter(p => p.id !== parseInt(id))
+        .slice(0, 3);
+      
+      res.render("projet", { 
+        projet, 
+        projetsSimilaires,
+        page: 'projet' 
+      });
+    });
+  });
+});
+
+// Page admin projets
+app.get("/admin/projets", function (req, res) {
+  db_functions.getAllProjets((err, projets) => {
+    if (err) {
+      console.error('❌ Erreur lors de la récupération des projets:', err);
+      res.render("admin-projets", { projets: [] });
+    } else {
+      res.render("admin-projets", { projets });
+    }
+  });
+});
+
+// API Routes pour la gestion des projets
+// Upload d'image
+app.post("/api/upload-image", upload.single('image'), function (req, res) {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Aucune image uploadée' });
+  }
+  
+  const imagePath = '/img/projets/' + req.file.filename;
+  res.json({ success: true, imagePath });
+});
+
+// Ajouter un projet
+app.post("/api/projets", function (req, res) {
+  const { annee, titre, description, competences, image } = req.body;
+  
+  if (!annee || !titre || !description || !competences) {
+    return res.status(400).json({ error: 'Tous les champs sont requis' });
+  }
+
+  db_functions.addProjet({ annee, titre, description, competences, image }, (err, id) => {
+    if (err) {
+      console.error('❌ Erreur lors de l\'ajout du projet:', err);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
+    res.json({ success: true, id });
+  });
+});
+
+// Modifier un projet
+app.put("/api/projets/:id", function (req, res) {
+  const { id } = req.params;
+  const { annee, titre, description, competences, image } = req.body;
+  
+  if (!annee || !titre || !description || !competences) {
+    return res.status(400).json({ error: 'Tous les champs sont requis' });
+  }
+
+  db_functions.updateProjet(id, { annee, titre, description, competences, image }, (err) => {
+    if (err) {
+      console.error('❌ Erreur lors de la modification du projet:', err);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
+    res.json({ success: true });
+  });
+});
+
+// Supprimer un projet
+app.delete("/api/projets/:id", function (req, res) {
+  const { id } = req.params;
+  
+  db_functions.deleteProjet(id, (err) => {
+    if (err) {
+      console.error('❌ Erreur lors de la suppression du projet:', err);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
+    res.json({ success: true });
+  });
+});
+
+// 404
+app.use((req, res) => {
+  res.status(404).render('404', { page: '404' });
+});
+
+// Démarrer le serveur
+app.listen(3000, function () {
+  console.log("✓ Portfolio de Kiéran Le Troadec");
+  console.log("✓ Server is running on http://localhost:3000");
+});

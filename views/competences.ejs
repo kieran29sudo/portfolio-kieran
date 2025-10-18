@@ -1,0 +1,88 @@
+<%- include('header') %>
+
+<!-- HERO SECTION -->
+<section style="background: linear-gradient(135deg, var(--vert-accent) 0%, var(--vert-fonce) 100%); padding: 4rem 2rem; text-align: center; color: white;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h1 style="font-family: var(--font-titre); font-size: 3rem; margin-bottom: 1rem;">Mes Compétences</h1>
+        <p style="font-size: 1.2rem; opacity: 0.95;">Hard skills et soft skills acquis durant mon parcours</p>
+    </div>
+</section>
+
+<div class="container">
+    <!-- SOFT SKILLS -->
+    <section>
+        <h2>Soft-skills</h2>
+        <div class="soft-skills-grid">
+            <% softSkills.forEach(skill => { %>
+                <div class="skill-card">
+                    <div class="icon"><%= skill.icon %></div>
+                    <h3><%= skill.nom %></h3>
+                </div>
+            <% }) %>
+        </div>
+    </section>
+
+    <!-- HARD SKILLS -->
+    <section>
+        <h2>Hard-skills</h2>
+        <div class="competences-grid">
+            <!-- Branding -->
+            <div class="competence-card">
+                <h3>Branding</h3>
+                <ul>
+                    <% hardSkills.branding.forEach(item => { %>
+                        <li><%= item %></li>
+                    <% }) %>
+                </ul>
+            </div>
+
+            <!-- Audiovisuel -->
+            <div class="competence-card">
+                <h3>Audiovisuel</h3>
+                <ul>
+                    <% hardSkills.audiovisuel.forEach(item => { %>
+                        <li><%= item %></li>
+                    <% }) %>
+                </ul>
+            </div>
+
+            <!-- UX Design -->
+            <div class="competence-card">
+                <h3>UX Design</h3>
+                <ul>
+                    <% hardSkills.uxDesign.forEach(item => { %>
+                        <li><%= item %></li>
+                    <% }) %>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Hard Skills Icons -->
+        <div class="hardskills-icons">
+            <div class="skill-icon">
+                <img src="/img/competences/html.png" alt="HTML">
+                <span>HTML</span>
+            </div>
+            <div class="skill-icon">
+                <img src="/img/competences/css.png" alt="CSS">
+                <span>CSS</span>
+            </div>
+            <div class="skill-icon">
+                <img src="/img/competences/js.png" alt="JavaScript">
+                <span>JavaScript</span>
+            </div>
+            <div class="skill-icon">
+                <img src="/img/competences/figma.png" alt="Figma">
+                <span>Figma</span>
+            </div>
+            <div class="skill-icon">
+                <img src="/img/competences/affinity.png" alt="Affinity">
+                <span>Affinity</span>
+            </div>
+        </div>
+
+    
+    </section>
+</div>
+
+<%- include('footer') %>

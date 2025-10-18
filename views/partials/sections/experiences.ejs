@@ -1,0 +1,15 @@
+<!-- EXPÉRIENCES PROFESSIONNELLES -->
+<section id="experiences">
+    <h2>Expériences professionnelles</h2>
+    <div class="experiences-list">
+        <% portfolio.experiences.forEach(exp => { %>
+            <div class="experience-item">
+                <img src="<%= exp.image %>" alt="<%= exp.titre %>" class="experience-image">
+                <div class="experience-content">
+                    <h3><%= exp.titre %></h3>
+                    <p class="periode"><%= exp.periode %></p>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</section>

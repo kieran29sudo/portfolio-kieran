@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Portfolio - Kiéran Le Troadec' %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/buttons.css">
+</head>
+
+<body>
+    <!-- NAVIGATION -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="/" class="logo">KLT</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/" class="<%= typeof page !== 'undefined' && page === 'home' ? 'active' : '' %>" onclick="closeMenuOnMobile()">Accueil</a></li>
+                <li><a href="/#apropos" onclick="closeMenuOnMobile()">À propos</a></li>
+                <li><a href="/#formations" onclick="closeMenuOnMobile()">Formations</a></li>
+                <li><a href="/#experiences" onclick="closeMenuOnMobile()">Expériences</a></li>
+                <li><a href="/#projets" onclick="closeMenuOnMobile()">Projets</a></li>
+                <li><a href="/#competences" onclick="closeMenuOnMobile()">Compétences</a></li>
+                <li><a href="/catalogue" class="<%= typeof page !== 'undefined' && page === 'catalogue' ? 'active' : '' %>" onclick="closeMenuOnMobile()">Catalogue</a></li>
+            </ul>
+            <div class="hamburger" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        // Menu hamburger
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const hamburger = document.querySelector('.hamburger');
+            navLinks.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+        
+        // Fermer le menu sur mobile après un clic
+        function closeMenuOnMobile() {
+            if (window.innerWidth <= 768) {
+                const navLinks = document.getElementById('navLinks');
+                const hamburger = document.querySelector('.hamburger');
+                navLinks.classList.remove('active');
+                hamburger.classList.remove('active');
+            }
+        }
+
+        // Effet de scroll sur la navbar avec debounce pour performance
+        let scrollTimeout;
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.main-nav');
+            
+            if (scrollTimeout) {
+                window.cancelAnimationFrame(scrollTimeout);
+            }
+            
+            scrollTimeout = window.requestAnimationFrame(function() {
+                if (window.scrollY > 50) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            });
+        });
+
+        // ============================================
+        // ANIMATIONS AU SCROLL (Intersection Observer)
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tracker la position de scroll pour détecter la direction
+            let lastScrollY = window.scrollY;
+            let scrollDirection = 'down';
+            
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > lastScrollY) {
+                    scrollDirection = 'down';
+                } else {
+                    scrollDirection = 'up';
+                }
+                lastScrollY = window.scrollY;
+            });
+
+            // Observer pour les animations d'apparition
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && scrollDirection === 'down') {
+                        // Élément visible en descendant : apparition
+                        entry.target.classList.remove('animate-out');
+                        entry.target.classList.add('animate-in');
+                    } else if (!entry.isIntersecting && scrollDirection === 'up') {
+                        // Élément invisible en remontant : disparition
+                        entry.target.classList.remove('animate-in');
+                        entry.target.classList.add('animate-out');
+                    }
+                });
+            }, observerOptions);
+
+            // Observer toutes les sections
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.add('fade-in-section');
+                // Si la section est déjà visible au chargement, l'afficher immédiatement
+                const rect = section.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    section.classList.add('animate-in');
+                }
+                observer.observe(section);
+            });
+
+            // Observer les cartes individuellement
+            document.querySelectorAll('.skill-card, .competence-card, .projet-card, .formation-item, .experience-item, .interet-card').forEach(card => {
+                card.classList.add('fade-in-card');
+                // Si la carte est déjà visible au chargement, l'afficher immédiatement
+                const rect = card.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    card.classList.add('animate-in');
+                }
+                observer.observe(card);
+            });
+
+            // ============================================
+            // NAVBAR ACTIVE SELON LA SECTION
+            // ============================================
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-links a');
+
+            const navObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const sectionId = entry.target.getAttribute('id');
+                        
+                        // Retirer la classe active de tous les liens
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                        });
+
+                        // Ajouter la classe active au lien correspondant
+                        const activeLink = document.querySelector(`.nav-links a[href*="${sectionId}"]`);
+                        if (activeLink) {
+                            activeLink.classList.add('active');
+                        }
+                    }
+                });
+            }, {
+                threshold: 0.2,
+                rootMargin: '-80px 0px -60% 0px'
+            });
+
+            sections.forEach(section => {
+                navObserver.observe(section);
+            });
+
+            // Gérer le cas de l'accueil (en haut de page)
+            window.addEventListener('scroll', function() {
+                if (window.scrollY < 100) {
+                    navLinks.forEach(link => link.classList.remove('active'));
+                    const homeLink = document.querySelector('.nav-links a[href="/"]');
+                    if (homeLink) {
+                        homeLink.classList.add('active');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

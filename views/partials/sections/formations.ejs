@@ -1,0 +1,15 @@
+<!-- FORMATIONS -->
+<section id="formations">
+    <h2>Formations</h2>
+    <div class="formations-list">
+        <% portfolio.formations.forEach(formation => { %>
+            <div class="formation-item">
+                <div class="annees"><%= formation.annees %></div>
+                <h3><%= formation.titre %></h3>
+                <p class="details"><%= formation.details %></p>
+                <p class="lieu"><%= formation.lieu %></p>
+                <p class="specialites"><%= formation.specialites %></p>
+            </div>
+        <% }) %>
+    </div>
+</section>

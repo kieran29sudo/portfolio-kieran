@@ -1,0 +1,28 @@
+<!-- PROJETS -->
+<section id="projets">
+    <h2>Projets</h2>
+    <div class="projets-grid">
+        <% portfolio.projets.slice(0, 3).forEach(projet => { %>
+            <div class="projet-card fade-in-card" onclick="window.location.href='/projet/<%= projet.id %>'" style="cursor: pointer;">
+                <div class="projet-content">
+                    <span class="annee"><%= projet.annee %></span>
+                    <h3><%= projet.titre %></h3>
+                    
+                    <% if (projet.image) { %>
+                        <div style="width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 15px; margin: 1.5rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            <img src="<%= projet.image %>" alt="<%= projet.titre %>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        </div>
+                    <% } %>
+                    
+                    <p class="description"><%= projet.description %></p>
+                    <p class="competences"><strong>Compétences:</strong> <%= projet.competences %></p>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+    <div style="text-align: center; margin-top: 3rem;">
+        <a href="/catalogue" class="btn-primary">
+            Voir tous mes projets →
+        </a>
+    </div>
+</section>

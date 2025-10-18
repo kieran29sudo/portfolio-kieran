@@ -1,0 +1,174 @@
+<%- include('../partials/header') %>
+
+<style>
+    /* Navbar avec meilleur contraste pour la page catalogue */
+    .nav-container {
+        background: rgba(45, 49, 66, 0.95) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-links li a {
+        color: white !important;
+    }
+    
+    .nav-links li a:hover {
+        background: rgba(157, 181, 165, 0.3) !important;
+        color: white !important;
+    }
+    
+    .nav-links li a.active {
+        background: linear-gradient(135deg, var(--sage), var(--sage-dark)) !important;
+        color: white !important;
+    }
+    
+    .logo {
+        color: white !important;
+    }
+    
+    .hamburger span {
+        background: white !important;
+    }
+    
+    /* Menu mobile pour catalogue */
+    @media (max-width: 768px) {
+        .nav-links {
+            background: rgba(45, 49, 66, 0.98) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        }
+        
+        .nav-links li a {
+            color: white !important;
+        }
+        
+        .nav-links li a:hover {
+            background: rgba(157, 181, 165, 0.25) !important;
+        }
+    }
+</style>
+
+<!-- HERO SECTION CATALOGUE -->
+<section style="background: var(--vert-clair); padding: 4rem 2rem; text-align: center;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h1 style="font-family: var(--font-titre); font-size: 3rem; margin-bottom: 1rem; color: var(--noir);">Mes Projets</h1>
+        <p style="font-size: 1.2rem; color: var(--gris-fonce);">Découvrez mes réalisations en communication, branding et UX design</p>
+    </div>
+</section>
+
+<!-- BOUTON D'ÉDITION DISCRET -->
+<div style="position: fixed; bottom: 2rem; right: 2rem; z-index: 50;">
+    <button onclick="showPasswordPrompt()" style="width: 50px; height: 50px; border-radius: 50%; background: var(--vert-accent); color: white; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 1.5rem; transition: all 0.3s ease; opacity: 0.7;">
+        ✏️
+    </button>
+</div>
+
+<!-- CATALOGUE DES PROJETS -->
+<div class="container">
+    <section>
+        <div class="projets-grid">
+            <% projets.forEach(projet => { %>
+                <div class="projet-card fade-in-card" onclick="window.location.href='/projet/<%= projet.id %>'" style="cursor: pointer;">
+                    <div class="projet-content">
+                        <span class="annee"><%= projet.annee %></span>
+                        <h3><%= projet.titre %></h3>
+                        
+                        <% if (projet.image) { %>
+                            <div style="width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 15px; margin: 1.5rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <img src="<%= projet.image %>" alt="<%= projet.titre %>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;background:var(--sage-light);font-size:3rem;\'>📁</div>';">
+                            </div>
+                        <% } %>
+                        
+                        <p class="description"><%= projet.description %></p>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </section>
+</div>
+
+<!-- MODAL MOT DE PASSE -->
+<div id="passwordModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 2rem; border-radius: 15px; max-width: 400px; width: 90%;">
+        <h2 style="font-family: var(--font-titre); margin-bottom: 1rem;">Accès administrateur</h2>
+        <input type="password" id="adminPassword" placeholder="Mot de passe" style="width: 100%; padding: 0.8rem; border: 2px solid var(--vert-clair); border-radius: 8px; margin-bottom: 1rem; font-family: var(--font-principale);">
+        <div style="display: flex; gap: 1rem;">
+            <button onclick="checkPassword()" style="flex: 1; padding: 0.8rem; background: var(--vert-accent); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600;">
+                Valider
+            </button>
+            <button onclick="closePasswordModal()" style="flex: 1; padding: 0.8rem; background: var(--gris); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600;">
+                Annuler
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Hash du mot de passe "Kieran29490!" en SHA-256
+const ADMIN_PASSWORD_HASH = '20b3aadad9b56702f2d3caf8db6096555541a3b2f2da0f51f5163415e03d0c40'; // Kieran29490!
+
+function showPasswordPrompt() {
+    document.getElementById('passwordModal').style.display = 'flex';
+    document.getElementById('adminPassword').focus();
+}
+
+function closePasswordModal() {
+    document.getElementById('passwordModal').style.display = 'none';
+    document.getElementById('adminPassword').value = '';
+}
+
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+}
+
+async function checkPassword() {
+    const password = document.getElementById('adminPassword').value;
+    
+    if (!password) {
+        alert('⚠️ Veuillez entrer un mot de passe');
+        return;
+    }
+    
+    const hash = await hashPassword(password);
+    
+    console.log('Hash généré:', hash);
+    console.log('Hash attendu:', ADMIN_PASSWORD_HASH);
+    
+    if (hash === ADMIN_PASSWORD_HASH) {
+        // Stocker l'authentification dans sessionStorage
+        sessionStorage.setItem('adminAuth', 'true');
+        sessionStorage.setItem('adminAuthTime', Date.now().toString());
+        
+        console.log('✅ Authentification réussie, redirection...');
+        closePasswordModal();
+        
+        // Redirection avec un petit délai pour s'assurer que le sessionStorage est bien enregistré
+        setTimeout(() => {
+            window.location.href = '/admin/projets';
+        }, 100);
+    } else {
+        alert('❌ Mot de passe incorrect !');
+        console.log('❌ Échec de l\'authentification');
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('adminPassword').focus();
+    }
+}
+
+// Permettre la validation avec Enter
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('adminPassword');
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    }
+});
+</script>
+
+<%- include('../partials/footer') %>

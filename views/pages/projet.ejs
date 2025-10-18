@@ -1,0 +1,160 @@
+<%- include('../partials/header') %>
+
+<style>
+    /* Navbar avec meilleur contraste pour la page projet */
+    .nav-container {
+        background: rgba(45, 49, 66, 0.95) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-links li a {
+        color: white !important;
+    }
+    
+    .nav-links li a:hover {
+        background: rgba(157, 181, 165, 0.3) !important;
+        color: white !important;
+    }
+    
+    .nav-links li a.active {
+        background: linear-gradient(135deg, var(--sage), var(--sage-dark)) !important;
+        color: white !important;
+    }
+    
+    .logo {
+        color: white !important;
+    }
+    
+    .hamburger span {
+        background: white !important;
+    }
+    
+    /* Responsive pour la page projet */
+    @media (max-width: 968px) {
+        section h1 {
+            font-size: 2.5rem !important;
+        }
+        
+        .container > section > div > div:first-of-type {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .container > section > div > div:nth-of-type(2) {
+            grid-template-columns: 1fr !important;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        section h1 {
+            font-size: 2rem !important;
+        }
+    }
+</style>
+
+<!-- HERO SECTION PROJET -->
+<section style="background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%); padding: 6rem 2rem 4rem; text-align: center; color: white; position: relative; overflow: hidden;">
+    <!-- Formes organiques -->
+    <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); border-radius: 50%; animation: float 20s ease-in-out infinite;"></div>
+    <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(224, 122, 95, 0.15) 0%, transparent 70%); border-radius: 50%; animation: float 25s ease-in-out infinite reverse;"></div>
+    
+    <div style="max-width: 900px; margin: 0 auto; position: relative; z-index: 1;">
+        <div style="display: inline-block; margin-bottom: 1.5rem;">
+            <span style="background: rgba(255,255,255,0.25); backdrop-filter: blur(10px); padding: 0.6rem 1.5rem; border-radius: 30px; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"><%= projet.annee %></span>
+        </div>
+        <h1 style="font-family: var(--font-titre); font-size: 3.5rem; margin-bottom: 1.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.2;"><%= projet.titre %></h1>
+        <p style="font-size: 1.3rem; opacity: 0.95; max-width: 700px; margin: 0 auto; line-height: 1.6;"><%= projet.description.substring(0, 150) %>...</p>
+    </div>
+</section>
+
+<div class="container">
+    <!-- DÉTAILS DU PROJET -->
+    <section>
+        <div style="max-width: 900px; margin: 0 auto;">
+            <!-- Image du projet -->
+            <% if (projet.image) { %>
+                <div style="width: 100%; max-width: 1200px; margin: -80px auto 4rem; position: relative; z-index: 10; border-radius: 30px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); transform: translateY(0); transition: transform 0.6s ease;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <img src="<%= projet.image %>" alt="<%= projet.titre %>" style="width: 100%; height: auto; min-height: 500px; object-fit: cover; display: block;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:500px;background:var(--sage-light);font-size:5rem;\'>📁</div>';">
+                </div>
+            <% } %>
+
+            <!-- Grille d'informations -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem; margin-bottom: 4rem;">
+                <!-- Description -->
+                <div style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 3rem; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid rgba(157, 181, 165, 0.2); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(157, 181, 165, 0.1) 0%, transparent 70%); border-radius: 50%;"></div>
+                    <h2 style="font-family: var(--font-titre); color: var(--sage-dark); margin-bottom: 2rem; font-size: 2rem; position: relative;">📝 Description du projet</h2>
+                    <p style="font-size: 1.15rem; line-height: 1.9; color: var(--charcoal); position: relative;"><%= projet.description %></p>
+                </div>
+
+                <!-- Compétences -->
+                <div style="background: linear-gradient(135deg, rgba(157, 181, 165, 0.1) 0%, rgba(200, 213, 205, 0.2) 100%); backdrop-filter: blur(10px); padding: 3rem; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid rgba(157, 181, 165, 0.3);">
+                    <h2 style="font-family: var(--font-titre); color: var(--sage-dark); margin-bottom: 2rem; font-size: 1.6rem;">🎯 Compétences</h2>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <% projet.competences.split('-').forEach(comp => { %>
+                            <% if (comp.trim()) { %>
+                                <div style="background: white; padding: 1rem 1.5rem; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 4px solid var(--sage); transition: all 0.3s ease;" onmouseover="this.style.transform='translateX(10px)'; this.style.borderLeftColor='var(--terracotta)'" onmouseout="this.style.transform='translateX(0)'; this.style.borderLeftColor='var(--sage)'">
+                                    <span style="color: var(--charcoal); font-weight: 600; font-size: 0.95rem;"><%= comp.trim() %></span>
+                                </div>
+                            <% } %>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations supplémentaires -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 4rem;">
+                <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; border-top: 4px solid var(--sage);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                    <h3 style="font-family: var(--font-titre); color: var(--sage-dark); margin-bottom: 0.5rem; font-size: 1.2rem;">Année</h3>
+                    <p style="color: var(--charcoal); font-weight: 600; font-size: 1.1rem;"><%= projet.annee %></p>
+                </div>
+                <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; border-top: 4px solid var(--terracotta);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🎨</div>
+                    <h3 style="font-family: var(--font-titre); color: var(--sage-dark); margin-bottom: 0.5rem; font-size: 1.2rem;">Type</h3>
+                    <p style="color: var(--charcoal); font-weight: 600; font-size: 1.1rem;">Projet créatif</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; border-top: 4px solid var(--accent-sky);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">✨</div>
+                    <h3 style="font-family: var(--font-titre); color: var(--sage-dark); margin-bottom: 0.5rem; font-size: 1.2rem;">Statut</h3>
+                    <p style="color: var(--charcoal); font-weight: 600; font-size: 1.1rem;">Terminé</p>
+                </div>
+            </div>
+
+            <!-- Bouton retour -->
+            <div style="text-align: center; margin-top: 4rem;">
+                <a href="/catalogue" class="btn-secondary" style="display: inline-block; padding: 1.2rem 2.5rem; font-size: 1.05rem;">
+                    ← Retour aux projets
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROJETS SIMILAIRES -->
+    <% if (projetsSimilaires.length > 0) { %>
+        <section style="margin-top: 6rem;">
+            <h2 style="font-family: var(--font-titre); color: var(--charcoal); text-align: center; font-size: 2.5rem; margin-bottom: 3rem;">Projets similaires</h2>
+            <div class="projets-grid">
+                <% projetsSimilaires.forEach(p => { %>
+                    <div class="projet-card fade-in-card">
+                        <% if (p.image) { %>
+                            <div class="projet-image-container">
+                                <img src="<%= p.image %>" alt="<%= p.titre %>" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:4rem;\'>📁</div>';">
+                            </div>
+                        <% } %>
+                        <div class="projet-content">
+                            <span class="annee"><%= p.annee %></span>
+                            <h3><%= p.titre %></h3>
+                            <p class="description"><%= p.description %></p>
+                            <a href="/projet/<%= p.id %>" class="btn-primary" style="display: inline-block; margin-top: 1.5rem; padding: 0.9rem 1.8rem; font-size: 0.95rem;">
+                                Voir le projet →
+                            </a>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </section>
+    <% } %>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,12 @@
+<!-- CENTRES D'INTÉRÊT -->
+<section id="interets">
+    <h2>Centres d'intérêt</h2>
+    <div class="interets-grid">
+        <% portfolio.interets.forEach(interet => { %>
+            <div class="interet-card">
+                <h3><%= interet.titre %></h3>
+                <p><%= interet.description %></p>
+            </div>
+        <% }) %>
+    </div>
+</section>
