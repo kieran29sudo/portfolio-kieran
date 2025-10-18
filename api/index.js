@@ -35,6 +35,8 @@ app.use(express.static(path.join(rootDir, 'public')));
 // EJS Template Engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(rootDir, 'views', 'pages'));
+// Configurer le root pour les includes EJS
+app.locals.basedir = path.join(rootDir, 'views');
 
 // Route principale - Portfolio
 app.get("/", async function (req, res) {
