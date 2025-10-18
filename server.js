@@ -1,11 +1,12 @@
 import express from "express";
-import { db, db_functions } from './src/config/database.js';
+import { db_functions, initDatabase } from './src/config/db.js';
 import upload from './src/config/multer.js';
 
 const app = express();
 
 // Initialiser la base de données au démarrage
 console.log('🔄 Initialisation de la base de données...');
+await initDatabase();
 
 // Middleware pour parser les données
 app.use(express.urlencoded({ extended: true }));
@@ -19,9 +20,9 @@ app.set('view engine', 'ejs');
 app.set('views', './views/pages');
 
 // Route principale - Portfolio
-app.get("/", function (req, res) {
+app.get("/", async function (req, res) {
   // Récupérer les projets depuis la base de données
-  db_functions.getAllProjets((err, projetsDB) => {
+  const { error: err, rows: projetsDB } = await db_functions.getAllProjets();
     const portfolio = {
     bio: {
       nom: "Le Troadec Kiéran",
@@ -114,59 +115,54 @@ app.get("/", function (req, res) {
     ]
   };
 
-    res.render("index", { portfolio, page: 'home' });
-  });
+    res.render("index", { portfolio, projets: projetsDB || [], page: 'home' });
 });
 
 // Page catalogue
-app.get("/catalogue", function (req, res) {
-  db_functions.getAllProjets((err, projets) => {
-    if (err) {
-      console.error('❌ Erreur lors de la récupération des projets:', err);
-      res.render("catalogue", { projets: [], page: 'catalogue' });
-    } else {
-      res.render("catalogue", { projets, page: 'catalogue' });
-    }
-  });
+app.get("/catalogue", async function (req, res) {
+  const { error: err, rows: projets } = await db_functions.getAllProjets();
+  if (err) {
+    console.error(' Erreur lors de la récupération des projets:', err);
+    res.render("catalogue", { projets: [], page: 'catalogue' });
+  } else {
+    res.render("catalogue", { projets, page: 'catalogue' });
+  }
 });
 
 // Page projet individuel
-app.get("/projet/:id", function (req, res) {
+app.get("/projet/:id", async function (req, res) {
   const { id } = req.params;
   
   // Récupérer le projet spécifique
-  db_functions.getProjetById(id, (err, projet) => {
-    if (err || !projet) {
-      console.error('❌ Erreur lors de la récupération du projet:', err);
-      return res.status(404).render('404');
-    }
-    
-    // Récupérer tous les projets pour les projets similaires
-    db_functions.getAllProjets((err, tousLesProjets) => {
-      // Filtrer pour exclure le projet actuel et limiter à 3
-      const projetsSimilaires = (tousLesProjets || [])
-        .filter(p => p.id !== parseInt(id))
-        .slice(0, 3);
-      
-      res.render("projet", { 
-        projet, 
-        projetsSimilaires,
-        page: 'projet' 
-      });
-    });
+  const { error: err, row: projet } = await db_functions.getProjetById(id);
+  if (err || !projet) {
+    console.error(' Erreur lors de la récupération du projet:', err);
+    return res.status(404).render('404');
+  }
+  
+  // Récupérer tous les projets pour les projets similaires
+  const { rows: tousLesProjets } = await db_functions.getAllProjets();
+  // Filtrer pour exclure le projet actuel et limiter à 3
+  const projetsSimilaires = (tousLesProjets || [])
+    .filter(p => p.id !== parseInt(id))
+    .slice(0, 3);
+  
+  res.render('projet', { 
+    projet,
+    projetsSimilaires,
+    pageTitle: projet.titre
   });
 });
 
 // Page admin projets
-app.get("/admin/projets", function (req, res) {
-  db_functions.getAllProjets((err, projets) => {
-    if (err) {
-      console.error('❌ Erreur lors de la récupération des projets:', err);
-      res.render("admin-projets", { projets: [] });
-    } else {
-      res.render("admin-projets", { projets });
-    }
-  });
+app.get("/admin/projets", async function (req, res) {
+  const { error: err, rows: projets } = await db_functions.getAllProjets();
+  if (err) {
+    console.error('❌ Erreur lors de la récupération des projets:', err);
+    res.render("admin-projets", { projets: [] });
+  } else {
+    res.render("admin-projets", { projets });
+  }
 });
 
 // API Routes pour la gestion des projets
@@ -181,24 +177,23 @@ app.post("/api/upload-image", upload.single('image'), function (req, res) {
 });
 
 // Ajouter un projet
-app.post("/api/projets", function (req, res) {
+app.post("/api/projets", async function (req, res) {
   const { annee, titre, description, competences, image } = req.body;
   
   if (!annee || !titre || !description || !competences) {
     return res.status(400).json({ error: 'Tous les champs sont requis' });
   }
 
-  db_functions.addProjet({ annee, titre, description, competences, image }, (err, id) => {
-    if (err) {
-      console.error('❌ Erreur lors de l\'ajout du projet:', err);
-      return res.status(500).json({ error: 'Erreur serveur' });
-    }
-    res.json({ success: true, id });
-  });
+  const { error: err, id } = await db_functions.addProjet({ annee, titre, description, competences, image });
+  if (err) {
+    console.error('❌ Erreur lors de l\'ajout du projet:', err);
+    return res.status(500).json({ error: 'Erreur serveur' });
+  }
+  res.json({ success: true, id });
 });
 
 // Modifier un projet
-app.put("/api/projets/:id", function (req, res) {
+app.put("/api/projets/:id", async function (req, res) {
   const { id } = req.params;
   const { annee, titre, description, competences, image } = req.body;
   
@@ -206,26 +201,24 @@ app.put("/api/projets/:id", function (req, res) {
     return res.status(400).json({ error: 'Tous les champs sont requis' });
   }
 
-  db_functions.updateProjet(id, { annee, titre, description, competences, image }, (err) => {
-    if (err) {
-      console.error('❌ Erreur lors de la modification du projet:', err);
-      return res.status(500).json({ error: 'Erreur serveur' });
-    }
-    res.json({ success: true });
-  });
+  const { error: err } = await db_functions.updateProjet(id, { annee, titre, description, competences, image });
+  if (err) {
+    console.error('❌ Erreur lors de la modification du projet:', err);
+    return res.status(500).json({ error: 'Erreur serveur' });
+  }
+  res.json({ success: true });
 });
 
 // Supprimer un projet
-app.delete("/api/projets/:id", function (req, res) {
+app.delete("/api/projets/:id", async function (req, res) {
   const { id } = req.params;
   
-  db_functions.deleteProjet(id, (err) => {
-    if (err) {
-      console.error('❌ Erreur lors de la suppression du projet:', err);
-      return res.status(500).json({ error: 'Erreur serveur' });
-    }
-    res.json({ success: true });
-  });
+  const { error: err } = await db_functions.deleteProjet(id);
+  if (err) {
+    console.error('❌ Erreur lors de la suppression du projet:', err);
+    return res.status(500).json({ error: 'Erreur serveur' });
+  }
+  res.json({ success: true });
 });
 
 // 404

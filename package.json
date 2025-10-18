@@ -16,6 +16,7 @@
   "author": "Kiéran Le Troadec",
   "license": "ISC",
   "dependencies": {
+    "@vercel/postgres": "^0.5.1",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "multer": "^2.0.2",
