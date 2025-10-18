@@ -1,11 +1,12 @@
 import express from "express";
-import { db_functions, initDatabase } from './src/config/db.js';
+import { getDB } from './src/config/db.js';
 import upload from './src/config/multer.js';
 
 const app = express();
 
 // Initialiser la base de données au démarrage
 console.log('🔄 Initialisation de la base de données...');
+const { db_functions, initDatabase } = await getDB();
 await initDatabase();
 
 // Middleware pour parser les données
