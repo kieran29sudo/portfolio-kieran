@@ -29,11 +29,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Servir tous les fichiers statiques depuis le dossier public
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // EJS Template Engine
 app.set('view engine', 'ejs');
-app.set('views', './views/pages');
+app.set('views', path.join(__dirname, 'views', 'pages'));
 
 // Route principale - Portfolio
 app.get("/", async function (req, res) {
