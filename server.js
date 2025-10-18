@@ -1,13 +1,28 @@
 import express from "express";
 import { getDB } from './src/config/db.js';
 import upload from './src/config/multer.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+let db_functions;
 
 // Initialiser la base de données au démarrage
-console.log('🔄 Initialisation de la base de données...');
-const { db_functions, initDatabase } = await getDB();
-await initDatabase();
+async function initDB() {
+  console.log('🔄 Initialisation de la base de données...');
+  const { db_functions: dbFuncs, initDatabase } = await getDB();
+  db_functions = dbFuncs;
+  await initDatabase();
+  console.log('✅ Base de données initialisée');
+}
+
+// Lancer l'initialisation
+initDB().catch(err => {
+  console.error('❌ Erreur lors de l\'initialisation:', err);
+});
 
 // Middleware pour parser les données
 app.use(express.urlencoded({ extended: true }));
@@ -227,8 +242,13 @@ app.use((req, res) => {
   res.status(404).render('404', { page: '404' });
 });
 
-// Démarrer le serveur
-app.listen(3000, function () {
-  console.log("✓ Portfolio de Kiéran Le Troadec");
-  console.log("✓ Server is running on http://localhost:3000");
-});
+// Démarrer le serveur (seulement en local, pas sur Vercel)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(3000, function () {
+    console.log("✓ Portfolio de Kiéran Le Troadec");
+    console.log("✓ Server is running on http://localhost:3000");
+  });
+}
+
+// Exporter pour Vercel
+export default app;
