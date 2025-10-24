@@ -38,6 +38,36 @@ app.set('views', path.join(rootDir, 'views', 'pages'));
 // Configurer le root pour les includes EJS
 app.locals.basedir = path.join(rootDir, 'views');
 
+// Route de migration pour ajouter la colonne statut (à exécuter une seule fois)
+app.get("/migrate-statut", async function (req, res) {
+  try {
+    if (isVercel) {
+      // Migration Postgres
+      await sql`ALTER TABLE projets ADD COLUMN IF NOT EXISTS statut TEXT DEFAULT 'Terminé'`;
+      res.send('✅ Migration Postgres réussie : colonne statut ajoutée !');
+    } else {
+      // Migration SQLite
+      db.run(`ALTER TABLE projets ADD COLUMN statut TEXT DEFAULT 'Terminé'`, (err) => {
+        if (err) {
+          if (err.message.includes('duplicate column')) {
+            res.send('✅ Migration SQLite : colonne statut existe déjà !');
+          } else {
+            res.status(500).send('❌ Erreur migration SQLite : ' + err.message);
+          }
+        } else {
+          res.send('✅ Migration SQLite réussie : colonne statut ajoutée !');
+        }
+      });
+    }
+  } catch (error) {
+    if (error.message && error.message.includes('already exists')) {
+      res.send('✅ Migration : colonne statut existe déjà !');
+    } else {
+      res.status(500).send('❌ Erreur migration : ' + error.message);
+    }
+  }
+});
+
 // Route principale - Portfolio
 app.get("/", async function (req, res) {
   // Récupérer les projets depuis la base de données
