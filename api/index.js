@@ -185,14 +185,25 @@ app.get("/admin/projets", async function (req, res) {
 });
 
 // API Routes pour la gestion des projets
-// Upload d'image
-app.post("/api/upload-image", upload.single('image'), function (req, res) {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Aucune image uploadée' });
-  }
-  
-  const imagePath = '/img/projets/' + req.file.filename;
-  res.json({ success: true, imagePath });
+// Upload d'image - Converti en base64 pour compatibilité Vercel
+app.post("/api/upload-image", (req, res) => {
+  upload.single('image')(req, res, function (err) {
+    if (err) {
+      console.error('❌ Erreur Multer:', err);
+      return res.status(400).json({ error: err.message || 'Erreur lors de l\'upload' });
+    }
+    
+    if (!req.file) {
+      console.error('❌ Aucun fichier reçu');
+      return res.status(400).json({ error: 'Aucune image uploadée' });
+    }
+    
+    // Convertir l'image en base64
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    
+    console.log('✅ Image uploadée et convertie en base64');
+    res.json({ success: true, imagePath: base64Image });
+  });
 });
 
 // Ajouter un projet
