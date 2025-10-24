@@ -12,6 +12,7 @@ export async function initDatabase() {
         description TEXT NOT NULL,
         competences TEXT NOT NULL,
         image TEXT,
+        statut TEXT DEFAULT 'Terminé',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -85,10 +86,10 @@ export const db_functions = {
   // Ajouter un projet
   addProjet: async (projet) => {
     try {
-      const { annee, titre, description, competences, image } = projet;
+      const { annee, titre, description, competences, image, statut } = projet;
       const { rows } = await sql`
-        INSERT INTO projets (annee, titre, description, competences, image)
-        VALUES (${annee}, ${titre}, ${description}, ${competences}, ${image || null})
+        INSERT INTO projets (annee, titre, description, competences, image, statut)
+        VALUES (${annee}, ${titre}, ${description}, ${competences}, ${image || null}, ${statut || 'Terminé'})
         RETURNING id
       `;
       return { error: null, id: rows[0].id };
@@ -100,15 +101,11 @@ export const db_functions = {
   // Mettre à jour un projet
   updateProjet: async (id, projet) => {
     try {
-      const { annee, titre, description, competences, image } = projet;
+      const { annee, titre, description, competences, image, statut } = projet;
       await sql`
         UPDATE projets 
-        SET annee = ${annee}, 
-            titre = ${titre}, 
-            description = ${description}, 
-            competences = ${competences}, 
-            image = ${image || null},
-            updated_at = CURRENT_TIMESTAMP
+        SET annee = ${annee}, titre = ${titre}, description = ${description}, 
+            competences = ${competences}, image = ${image || null}, statut = ${statut || 'Terminé'}, updated_at = CURRENT_TIMESTAMP
         WHERE id = ${id}
       `;
       return { error: null };

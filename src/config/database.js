@@ -26,6 +26,7 @@ db.serialize(() => {
       description TEXT NOT NULL,
       competences TEXT NOT NULL,
       image TEXT,
+      statut TEXT DEFAULT 'Terminé',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )

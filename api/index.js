@@ -208,13 +208,13 @@ app.post("/api/upload-image", (req, res) => {
 
 // Ajouter un projet
 app.post("/api/projets", async function (req, res) {
-  const { annee, titre, description, competences, image } = req.body;
+  const { annee, titre, description, competences, image, statut } = req.body;
   
   if (!annee || !titre || !description || !competences) {
     return res.status(400).json({ error: 'Tous les champs sont requis' });
   }
 
-  const { error: err, id } = await db_functions.addProjet({ annee, titre, description, competences, image });
+  const { error: err, id } = await db_functions.addProjet({ annee, titre, description, competences, image, statut });
   if (err) {
     console.error('❌ Erreur lors de l\'ajout du projet:', err);
     return res.status(500).json({ error: 'Erreur serveur' });
@@ -225,13 +225,13 @@ app.post("/api/projets", async function (req, res) {
 // Modifier un projet
 app.put("/api/projets/:id", async function (req, res) {
   const { id } = req.params;
-  const { annee, titre, description, competences, image } = req.body;
+  const { annee, titre, description, competences, image, statut } = req.body;
   
   if (!annee || !titre || !description || !competences) {
     return res.status(400).json({ error: 'Tous les champs sont requis' });
   }
 
-  const { error: err } = await db_functions.updateProjet(id, { annee, titre, description, competences, image });
+  const { error: err } = await db_functions.updateProjet(id, { annee, titre, description, competences, image, statut });
   if (err) {
     console.error('❌ Erreur lors de la modification du projet:', err);
     return res.status(500).json({ error: 'Erreur serveur' });

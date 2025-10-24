@@ -37,8 +37,20 @@
                     <% if (projet.image) { %>
                         <img src="<%= projet.image %>" alt="<%= projet.titre %>" style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px; margin-bottom: 1rem;">
                     <% } %>
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                        <span style="background: var(--vert-accent); color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem;"><%= projet.annee %></span>
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <span style="background: var(--vert-accent); color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem;"><%= projet.annee %></span>
+                            <% 
+                            const statutColors = {
+                                'Terminé': '#10b981',
+                                'En cours': '#3b82f6',
+                                'En pause': '#f59e0b',
+                                'Planifié': '#8b5cf6'
+                            };
+                            const statutColor = statutColors[projet.statut] || '#6b7280';
+                            %>
+                            <span style="background: <%= statutColor %>; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem;"><%= projet.statut || 'Terminé' %></span>
+                        </div>
                         <div style="display: flex; gap: 0.5rem;">
                             <button onclick="editProjet(<%= index %>)" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 15px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease;">
                                 ✏️ Modifier
@@ -79,6 +91,16 @@
             <div style="margin-bottom: 1.5rem;">
                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--gris-fonce);">Compétences *</label>
                 <textarea id="projetCompetences" rows="3" placeholder="Ex: Branding - Design - Communication..." style="width: 100%; padding: 1rem; border: 2px solid var(--vert-clair); border-radius: 10px; font-family: var(--font-principale); font-size: 1rem; resize: vertical; transition: all 0.3s ease;"></textarea>
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--gris-fonce);">Statut du projet *</label>
+                <select id="projetStatut" style="width: 100%; padding: 1rem; border: 2px solid var(--vert-clair); border-radius: 10px; font-family: var(--font-principale); font-size: 1rem; transition: all 0.3s ease; cursor: pointer;">
+                    <option value="Terminé">✅ Terminé</option>
+                    <option value="En cours">🔄 En cours</option>
+                    <option value="En pause">⏸️ En pause</option>
+                    <option value="Planifié">📅 Planifié</option>
+                </select>
             </div>
             
             <div style="margin-bottom: 2rem;">
@@ -181,6 +203,7 @@
             document.getElementById('projetAnnee').value = projet.annee;
             document.getElementById('projetDescription').value = projet.description;
             document.getElementById('projetCompetences').value = projet.competences;
+            document.getElementById('projetStatut').value = projet.statut || 'Terminé';
             document.getElementById('projetImage').value = '';
             document.getElementById('projetImagePath').value = projet.image || '';
             
@@ -300,6 +323,7 @@
             const annee = document.getElementById('projetAnnee').value.trim();
             const description = document.getElementById('projetDescription').value.trim();
             const competences = document.getElementById('projetCompetences').value.trim();
+            const statut = document.getElementById('projetStatut').value;
             const imageFile = document.getElementById('projetImage').files[0];
             let imagePath = document.getElementById('projetImagePath').value;
 
@@ -324,12 +348,15 @@
                         imagePath = uploadData.imagePath;
                         croppedBlob = null; // Réinitialiser
                     } else {
-                        alert('❌ Erreur lors de l\'upload de l\'image');
+                        const errorData = await uploadResponse.json().catch(() => ({}));
+                        const errorMessage = errorData.error || 'Erreur inconnue';
+                        console.error('Erreur upload:', errorMessage);
+                        alert(`❌ Erreur lors de l'upload de l'image: ${errorMessage}`);
                         return;
                     }
                 }
 
-                const projetData = { titre, annee, description, competences, image: imagePath };
+                const projetData = { titre, annee, description, competences, image: imagePath, statut };
 
                 if (editingIndex !== null) {
                     // Modification
